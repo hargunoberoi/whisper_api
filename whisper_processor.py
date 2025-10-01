@@ -26,19 +26,29 @@ def process_audio(wav_file, model_path: str):
     script_dir = Path(__file__).parent
     binary_dir = script_dir / "whisper-cli"
     full_command = f"{binary_dir} -m {model} -f {wav_file} -otxt"
-    
+
     # Execute the command
     process = subprocess.Popen(full_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     # Get the output and error (if any)
     output, error = process.communicate()
 
-    if error:
+    # Check return code for actual errors
+    if process.returncode != 0:
         raise Exception(f"Error processing audio: {error.decode('utf-8')}")
 
-    # Process and return the output string
-    decoded_str = output.decode('utf-8').strip()
-    processed_str = decoded_str.replace('[BLANK_AUDIO]', '').strip()
+    # Read the generated .txt file
+    txt_file = f"{wav_file}.txt"
+    if not os.path.exists(txt_file):
+        raise FileNotFoundError(f"Transcription output file not found: {txt_file}")
+
+    with open(txt_file, 'r') as f:
+        processed_str = f.read().strip()
+
+    # Clean up the .txt file
+    os.remove(txt_file)
+
+    processed_str = processed_str.replace('[BLANK_AUDIO]', '').strip()
 
     return processed_str
 

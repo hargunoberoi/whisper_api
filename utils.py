@@ -1,8 +1,8 @@
 import whisper 
 import tempfile
+import subprocess
 
-
-def convert_to_wav(input_file):
+def convert_to_wav(input_file,speedup=None):
     """Convert any audio format to 16kHz mono WAV"""
 
     # Create temp file for converted audio
@@ -11,14 +11,29 @@ def convert_to_wav(input_file):
 
     # Use ffmpeg to convert
     ffmpeg_cmd = [
-        'ffmpeg',
-        '-i', input_file,
-        '-ar', '16000',      # 16kHz sample rate
-        '-ac', '1',          # Mono
-        '-c:a', 'pcm_s16le', # 16-bit PCM
-        '-y',                # Overwrite output
+    "ffmpeg",
+    "-i", input_file,
+    ]
+    if speedup:  # e.g. speedup=2.0
+        ffmpeg_cmd += ["-filter:a", f"atempo={speedup}"]
+    ffmpeg_cmd += [
+        "-ar", "16000",
+        "-ac", "1",
+        "-c:a", "pcm_s16le",
+        "-y",
         temp_wav.name
     ]
+    # ffmpeg_cmd = [
+    #     'ffmpeg',
+    #     '-i', input_file,
+    #     '-ar', '16000',      # 16kHz sample rate
+    #     '-ac', '1',          # Mono
+    #     '-c:a', 'pcm_s16le', # 16-bit PCM
+    #     '-y',                # Overwrite output
+    #     temp_wav.name
+    # ]
+
+
 
     try:
         subprocess.run(

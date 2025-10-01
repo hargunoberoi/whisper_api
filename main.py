@@ -6,7 +6,7 @@ import requests
 import os
 import whisper
 from utils import print_model_info
-
+from time import time
 app = FastAPI()
 
 print(">>> FastAPI initialized")
@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-model = whisper.load_model("large") 
+model = whisper.load_model("large-v3-turbo") 
 # tiny, base, small, medium, large-v1, large-v2, large-v3, large, turbo or "large-v3-turbo"
 
 # model = whisper.load_model("large")      # Uses 80 mel bins - works with your code
@@ -106,8 +106,10 @@ async def transcribe(
 
     # Transcribe using your model
     try:
+        start_time = time()
         result = model.transcribe(audio_path)
-        return {"text": result["text"]}
+        elapsed_time = time() - start_time 
+        return {"text": result["text"],'elapsed_time':elapsed_time}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error transcribing audio: {str(e)}")
     finally:

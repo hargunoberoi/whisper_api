@@ -5,8 +5,10 @@ from uuid import uuid4
 import requests
 import os
 from whisper_processor import process_audio
+from utils import convert_to_wav
+from time import time
 
-model_path = '/Users/h3045/Desktop/aigarage/whisper.cpp/models/ggml-large-v3-turbo-q5_0.bin'
+model_path = '/Users/h3045/Desktop/aigarage/whisper.cpp/models/ggml-large-v3-q5_0.bin'
 app = FastAPI()
 
 print(">>> FastAPI initialized")
@@ -36,6 +38,7 @@ async def process_audio_input(
 
     # Process file upload
     if file:
+        os.makedirs("./audio", exist_ok=True)
         audio_path = f"./audio/{uuid4().hex}_{file.filename}"
         with open(audio_path, "wb") as f_out:
             f_out.write(await file.read())
@@ -65,16 +68,29 @@ async def transcribe(
     file: Optional[UploadFile] = File(None),
     audio_url: Optional[str] = Form(None)
 ):
-    audio_path, _ = await process_audio_input(file, audio_url)
+    audio_path, file_ext = await process_audio_input(file, audio_url)
+    wav_path = None
 
-    # Transcribe using your model
     try:
-        result = process_audio(audio_path,model_path)
-        return {"text": 'haha'}
+        # Convert to WAV if needed
+        if file_ext.lower() in ['.mp3', '.m4a', '.ogg', '.flac']:
+            wav_path = convert_to_wav(audio_path,speedup=2.0)
+            processing_path = wav_path
+        elif file_ext.lower() == '.wav':
+            processing_path = audio_path
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported audio format: {file_ext}. Only WAV and MP3 are supported.")
+
+        # Transcribe using your model
+        start_time = time()
+        result = process_audio(processing_path, model_path)
+        elapsed_time = time() - start_time
+        return {"text": result,"elapsed_time":elapsed_time}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error transcribing audio: {str(e)}")
     finally:
-        pass
         # Clean up
         if os.path.exists(audio_path):
             os.remove(audio_path)
+        if wav_path and os.path.exists(wav_path):
+            os.remove(wav_path)
