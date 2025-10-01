@@ -18,13 +18,13 @@ FastAPI service for audio transcription using Whisper models.
 
 ```bash
 # Install dependencies
-uv sync
+pip install -r requirements.txt
 
 # Run with OpenAI Whisper
-uv run uvicorn main:app --reload
+python -m uvicorn main:app --reload
 
 # Run with whisper.cpp (faster)
-uv run uvicorn cpp:app --reload
+python -m uvicorn cpp:app --reload
 ```
 
 ## API Endpoints

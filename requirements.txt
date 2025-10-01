@@ -1,0 +1,7 @@
+fastapi>=0.103.0
+uvicorn>=0.23.0
+openai-whisper>=20230918
+python-multipart>=0.0.6
+requests>=2.32.0
+torch>=2.0.0
+numpy>=1.25.0,<2.0.0
