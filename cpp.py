@@ -8,7 +8,8 @@ from whisper_processor import process_audio
 from utils import convert_to_wav
 from time import time
 
-model_path = '/Users/h3045/Desktop/aigarage/whisper.cpp/models/ggml-large-v3-q5_0.bin'
+# provide model path from whispercpp
+model_path = 'Pathto/whisper.cpp/models/ggml-large-v3-q5_0.bin'
 app = FastAPI()
 
 print(">>> FastAPI initialized")

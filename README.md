@@ -16,6 +16,11 @@ FastAPI service for audio transcription using Whisper models.
 
 ## Quick Start
 
+**Note**:
+Make sure to follow instructions from [whisper.cpp](https://github.com/ggml-org/whisper.cpp) to build optmized models and command line executables.
+
+The `cpp.py` file depends on models and exectuable program (whisper-cli) from that project.
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
